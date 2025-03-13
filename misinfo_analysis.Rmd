@@ -2,13 +2,17 @@
 title: "Misinformation Analysis"
 author: "Daniel Allington"
 date: "2025-03-06"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup}
 library(dplyr)
 library(readr)
 library(ggplot2)
+
+options(scipen = 999)
 
 misinfo_d <- read_csv(
   '../data/life-under-lockdown-wave2-extract.csv',
@@ -32,7 +36,7 @@ misinfo_d <- misinfo_d %>%
 
 ```
 
-# Visualisation
+# Descriptive statistics
 ```{r visualise-gender}
 misinfo_d %>%
   ggplot(
@@ -65,10 +69,15 @@ misinfo_d %>%
   geom_histogram(binwidth = 1)
 ```
 
-# Analysis
-
+# Hypotheses
 H1 We expect a relationship between gender and number of misinformation beliefs.
 
+H2 We expect a correlation between age and number of misinformation beliefs.
+
+H3 We expect a correlation between amount of knowledge gained from Facebook and number of misinformation beliefs.
+
+# Findings
+## Gender versus number of misinformation beliefs
 ```{r gender-beliefs-table}
 misinfo_d %>%
   group_by(
@@ -94,4 +103,43 @@ misinfo_d %>%
 
 In the sample, men had more misinformation beliefs (M = 0.73, SD = 1.13) than women (M = 0.61, SD = 1.05), but this was not statistically significant, t(494.31) = -1.201, p = .230.
 
+## Age versus number of misinformation beliefs
+```{r age-beliefs-visualisation}
+misinfo_d %>%
+  ggplot(aes(x = age, y = beliefs)) +
+  geom_jitter()
+```
+
+```{r age-beliefs-correlation}
+misinfo_d %>%
+  cor.test(
+    ~ age + beliefs,
+    data = .,
+    method = 'pearson'
+  )
+```
+
+In the sample, there is a statistically significant moderate negative correlation between age and number of misinformation beliefs, r(498) = -.24, 95% CI [-.32, -.16], p < .001.
+
+## Knowledge from Facebook versus number of misinformation beliefs
+```{r facebook-beliefs-visualisation}
+misinfo_d %>%
+  ggplot(aes(x = know_facebook, y = beliefs)) +
+  geom_boxplot()
+```
+
+```{r facebook-beliefs-correlation}
+misinfo_d %>%
+  mutate(
+    know_facebook = as.numeric(know_facebook)
+  ) %>%
+  cor.test(
+    ~ know_facebook + beliefs,
+    data = .,
+    method = 'spearman',
+    exact = FALSE
+  )
+```
+
+In the sample, there is a moderate positive correlation between amount of knowledge gained from Facebook and number of misinformation beliefs, rs(498) = .23, p < .001.
 
