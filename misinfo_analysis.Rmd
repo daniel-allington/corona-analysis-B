@@ -143,3 +143,53 @@ misinfo_d %>%
 
 In the sample, there is a moderate positive correlation between amount of knowledge gained from Facebook and number of misinformation beliefs, rs(498) = .23, p < .001.
 
+
+
+## Linear model
+```{r create-dummy-variables}
+model_d <- misinfo_d %>%
+  mutate(
+    Female = as.numeric(gender == 'Female'),
+    High_Facebook = as.numeric(know_facebook %in% c('A fair amount', 'A great deal'))
+  )
+```
+
+```{r age-model}
+model_d %>%
+  lm(
+    beliefs ~ age,
+    data = .
+  ) %>%
+  summary
+```
+
+```{r facebook-model}
+model_d %>%
+  lm(
+    beliefs ~ High_Facebook,
+    data = .
+  ) %>%
+  summary
+```
+
+```{r gender-model}
+model_d %>%
+  lm(
+    beliefs ~ Female,
+    data = .
+  ) %>%
+  summary
+```
+
+```{r full-model}
+full_model <- model_d %>%
+  lm(
+    beliefs ~ age + High_Facebook + Female,
+    data = .
+  )
+
+full_model %>%
+  summary
+```
+
+
